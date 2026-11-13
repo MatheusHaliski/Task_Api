@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: taskapi
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskdb
+    username: taskuser
+    password: taskpass
+  data:
+    web:
+      pageable:
+        max-page-size: 100
