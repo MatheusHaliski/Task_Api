@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import br.com.taskapi.taskapi.task.InvalidTaskStateException;
 import br.com.taskapi.taskapi.task.TaskNotFoundException;
 
 @RestControllerAdvice
@@ -51,4 +52,10 @@ public ProblemDetail handleInvalidSort(PropertyReferenceException ex) {
         problem.setProperty("errors", errors);
         return ResponseEntity.badRequest().body(problem);
     }
+    @ExceptionHandler(InvalidTaskStateException.class)
+public ProblemDetail handleInvalidState(InvalidTaskStateException ex) {
+    ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    problem.setTitle("Operação inválida para o estado atual");
+    return problem;
+}
 }

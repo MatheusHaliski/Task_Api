@@ -2,6 +2,7 @@ package br.com.taskapi.taskapi.task;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,7 +56,12 @@ public class TaskController {
     public TaskResponse findById(@PathVariable Long id) {
         return TaskResponse.from(service.findById(id));
     }
-
+@PatchMapping("/complete")
+public List<TaskResponse> completeAll(@Valid @RequestBody BatchCompleteRequest request) {
+    return service.completeAll(request.ids()).stream()
+            .map(TaskResponse::from)
+            .toList();
+}
    @GetMapping
 public PageResponse<TaskResponse> search(
         @RequestParam(required = false) Status status,

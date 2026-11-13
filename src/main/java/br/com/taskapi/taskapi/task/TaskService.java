@@ -1,7 +1,10 @@
 package br.com.taskapi.taskapi.task;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +51,23 @@ public Page<Task> search(TaskFilter filter, Pageable pageable) {
         task.setDueDate(dueDate);
         return task;
     }
+@Transactional
+public List<Task> completeAll(List<Long> ids) {
+    Set<Long> uniqueIds = new LinkedHashSet<>(ids);
+    List<Task> tasks = repository.findAllById(uniqueIds);
 
+    // 1) Todos os ids precisam existir
+    if (tasks.size() != uniqueIds.size()) {
+        Set<Long> found = tasks.stream().map(Task::getId).collect(Collectors.toSet());
+        List<Long> missing = uniqueIds.stream().filter(id -> !found.contains(id)).toList();
+        throw new TaskNotFoundException(missing);
+    }
+
+    // 2) Conclui uma a uma; se alguma já estiver DONE, lança e a transação faz rollback
+    tasks.forEach(Task::complete);
+
+    return tasks; // dirty checking grava tudo no commit
+}
     @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {

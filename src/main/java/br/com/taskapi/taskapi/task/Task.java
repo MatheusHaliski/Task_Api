@@ -59,7 +59,12 @@ public class Task {
         this.dueDate = dueDate;
         this.status = Status.PENDING;
     }
-
+public void complete() {
+    if (this.status == Status.DONE) {
+        throw new InvalidTaskStateException("Task " + id + " já está concluída");
+    }
+    this.status = Status.DONE;
+}
     // Getters
     public Long getId() { return id; }
     public String getTitle() { return title; }
